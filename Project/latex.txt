@@ -1,0 +1,232 @@
+\documentclass{article}
+
+% babel包主要控制语言
+\usepackage{babel}
+\babelprovide[main, import, script=CJK, language=Chinese Simplified]{chinese}
+
+% fontspec包主要控制字体
+\usepackage{fontspec}
+\setmainfont{AR PL SungtiL GB} % AR PL SungtiL GB是某个字体的名字，可替换成任何可以用的字体
+
+\usepackage{graphicx} % Required for inserting images
+
+\usepackage{listings}
+\usepackage{ctex}
+\usepackage{float}
+\usepackage{caption}
+% 用来设置附录中代码的样式
+
+\lstset{
+    basicstyle          =   \sffamily,          % 基本代码风格
+    keywordstyle        =   \bfseries,          % 关键字风格
+    commentstyle        =   \rmfamily\itshape,  % 注释的风格，斜体
+    stringstyle         =   \ttfamily,  % 字符串风格
+    flexiblecolumns,                % 别问为什么，加上这个
+    numbers             =   left,   % 行号的位置在左边
+    showspaces          =   false,  % 是否显示空格，显示了有点乱，所以不现实了
+    numberstyle         =   \zihao{-5}\ttfamily,    % 行号的样式，小五号，tt等宽字体
+    showstringspaces    =   false,
+    captionpos          =   t,      % 这段代码的名字所呈现的位置，t指的是top上面
+    frame               =   lrtb,   % 显示边框
+}
+
+\lstdefinestyle{Python}{
+    language        =   Python, % 语言选Python
+    basicstyle      =   \zihao{-5}\ttfamily,
+    numberstyle     =   \zihao{-5}\ttfamily,
+    keywordstyle    =   \color{blue},
+    keywordstyle    =   [2] \color{teal},
+    stringstyle     =   \color{magenta},
+    commentstyle    =   \color{red}\ttfamily,
+    breaklines      =   true,   % 自动换行，建议不要写太长的行
+    columns         =   fixed,  % 如果不加这一句，字间距就不固定，很丑，必须加
+    basewidth       =   0.5em,
+    linewidth       =   5pt, % 边框宽度，
+}
+\usepackage{amsmath} 
+\usepackage{amssymb}
+
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
+\setcounter{secnumdepth}{4} % how many sectioning levels to assign numbers to
+\setcounter{tocdepth}{4} % how many sectioning levels to show in ToC
+\title{信息安全技术Project:DES算法实现}
+\author{21307174 刘俊杰 }
+\date{May 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{算法介绍}
+
+\subsection{算法简介}
+\noindent 
+\textbf{DES（Data Encryption Standard）是一种对称密钥加密算法，由IBM于上世纪70年代初开发，并在1977年被美国国家标准局（NIST）确定为联邦信息处理标准（FIPS）中的一部分。DES是历史上最常用的加密算法之一，尽管因为使用的56位密钥过短导致它在现代计算机环境下已被认为是不安全的，但它的设计原理对于理解其他现代加密算法仍然具有重要意义。}
+\subsection{算法特点}
+\noindent 
+\textbf{DES算法具有以下特点:\\
+\\
+\noindent1. 对称加密算法： DES是一种对称密钥加密算法，这意味着加密和解密使用相同的密钥。这种算法的优点是速度快，但需要解决密钥分发的问题。\\
+\noindent2. 分组密码： DES是一种分组密码，它将明文分成固定大小（64位）的块，并对每个块进行加密。由于DES是分组密码，因此它需要填充（padding）来处理不完整的块。\\
+\noindent3. 密钥长度： DES的密钥长度为64位，这意味着DES使用65位密钥对64位的明文进行加密。然而，由于每个字节的奇偶校验位，实际上只有56位用于加密。这在现代计算机环境下已被认为是不够安全的。\\
+\noindent4. 轮函数： DES使用一系列的轮函数（round function）来对明文进行加密。每一轮中，明文块被分成左右两部分，经过一系列的置换和替换操作，然后与上一轮的结果进行混合。\\
+\noindent5. 密钥调度： 在DES加密过程中，密钥需要经过一系列的置换和轮密钥生成算法来生成子密钥。这些子密钥用于每一轮的加密操作。\\
+\noindent6. Feistel结构： DES采用了Feistel结构，这意味着加密和解密过程是相同的，只是在轮密钥的应用顺序上有所不同。\\
+}
+\subsection{算法过程}
+\noindent DES算法的整体框架:
+
+%开始插入图片
+\begin{figure}[htbp] % htbp代表图片插入位置的设置
+\centering %图片居中
+%添加图片；[]中为可选参数，可以设置图片的宽高；{}中为图片的相对位置
+\includegraphics[width=14cm]{pic/1.png}
+\caption*{} % 图片标题
+\end{figure}
+
+
+\noindent 上述框架左侧是DES加解密的基本流程,右侧是密钥调度流程
+
+\subsubsection{初始置换(Initial Permutation)}
+\noindent 将输入按规定的置换表做一次置换\\
+(IP 和 FP 都是简单置换，对于密码安全没有任何意义)
+\subsubsection{round轮转}
+
+\noindent DES中的Feistel网络结构:
+%开始插入图片
+\begin{figure}[htbp] % htbp代表图片插入位置的设置
+\centering %图片居中
+%添加图片；[]中为可选参数，可以设置图片的宽高；{}中为图片的相对位置
+\includegraphics[width=4cm]{pic/2.png}
+\caption*{} % 图片标题
+\end{figure}
+
+\noindent 经过IP后的结果,均等的切分为 L 和 R 两个部分,并加入round迭代过程。
+经过16轮迭代过后的结果L和R再拼接为(R+L)，将(R+L)输入FP做最后一次置换得到最终结果。
+
+\subsubsubsection{round迭代}
+\noindent round迭代的每一次过程如下:
+
+\[\begin{aligned}L^{\prime}&=R\\R^{\prime}&=L\oplus F(R,subkey)\end{aligned}\]
+
+\noindent 其中F()为Feistel函数,subkey为对应轮次产生的子密钥
+
+\subsubsubsection{Feistel函数}
+
+\noindent Feistel函数结构如下:
+
+%开始插入图片
+\begin{figure}[htbp] % htbp代表图片插入位置的设置
+\centering %图片居中
+%添加图片；[]中为可选参数，可以设置图片的宽高；{}中为图片的相对位置
+\includegraphics[width=8cm]{pic/3.png}
+\caption*{} % 图片标题
+\end{figure}
+
+\noindent 输入的R经过Expand置换后形成48位，在于subkey异或，异或结果再经过S置换和P置换后得到Feistel函数的最终结果。
+
+\subsubsubsection{Expand置换}
+\subsubsubsection{盒置换(S置换)}
+\subsubsubsection{P置换}
+
+\subsubsection{密钥调度}
+
+\subsubsection{PC1}
+\subsubsection{PC2}
+
+%开始插入图片
+\begin{figure}[htbp] % htbp代表图片插入位置的设置
+\centering %图片居中
+%添加图片；[]中为可选参数，可以设置图片的宽高；{}中为图片的相对位置
+\includegraphics[width=6cm]{pic/4.png}
+\caption*{} % 图片标题
+\end{figure}
+
+\subsubsection{最终置换(Final Permutation)}
+\noindent 将最终的R和L拼接成 (R+L)做最后一次置换\\
+(IP 和 FP 都是简单置换，对于密码安全没有任何意义)
+
+\section{算法实现}
+\subsection{辅助函数}
+\noindent 因为密钥和明文或者密文在代码实现中是用十六进制字符串表示,而在DES算法过程中使用二进制数字列表来存储数据,故定义构造一些辅助函数,方便后续调用实现十六进制字符串转为二进制数字列表、实现二进制数字列表转为十六进制字符串、二进制列表转为十进制整数等功能。
+
+\lstset{language=Python}
+\begin{lstlisting}
+
+\end{lstlisting}
+\subsection{IP和FP}
+\lstset{language=Python}
+\begin{lstlisting}
+# 初始置换
+    def initial_permutations(self,input):    
+        ip = [58, 50, 42, 34, 26, 18, 10, 2,
+            60, 52, 44, 36, 28, 20, 12, 4,
+            62, 54, 46, 38, 30, 22, 14, 6,
+            64, 56, 48, 40, 32, 24, 16, 8,
+            57, 49, 41, 33, 25, 17, 9, 1,
+            59, 51, 43, 35, 27, 19, 11, 3,
+            61, 53, 45, 37, 29, 21, 13, 5,
+            63, 55, 47, 39, 31, 23, 15, 7]  
+        return [input[i-1] for i in ip]
+    
+    # 最终置换
+    def final_permutations(self,input):
+        fp = [40, 8, 48, 16, 56, 24, 64, 32,
+            39, 7, 47, 15, 55, 23, 63, 31,
+            38, 6, 46, 14, 54, 22, 62, 30,
+            37, 5, 45, 13, 53, 21, 61, 29,
+            36, 4, 44, 12, 52, 20, 60, 28,
+            35, 3, 43, 11, 51, 19, 59, 27,
+            34, 2, 42, 10, 50, 18, 58, 26,
+            33, 1, 41, 9, 49, 17, 57, 25]
+        return [input[i-1] for i in fp]
+\end{lstlisting}
+\subsection{轮转}
+\lstset{language=Python}
+\begin{lstlisting}
+
+\end{lstlisting}
+\subsection{Feiste函数}
+\lstset{language=Python}
+\begin{lstlisting}
+
+\end{lstlisting}
+\subsection{密钥调度(子密钥生成)}
+\lstset{language=Python}
+\begin{lstlisting}
+
+\end{lstlisting}
+\section{实验结果}
+\section{总结与感悟}
+\subsection{DES算法的优缺点}
+\subsubsection{DES算法的优点:}
+\noindent
+\textbf{
+1. 速度较快： DES是一种相对较快的加密算法，这使得它在许多应用中都有着良好的性能表现。\\
+2. 结构简单： DES的算法结构相对简单，易于理解和实现。\\
+3. 对普通攻击有一定抵抗力： DES能够抵抗一些基本的攻击，如差分攻击、线性攻击等，这使得它在某些情况下仍然可以被使用。\\
+}
+
+\subsubsection{DES算法的缺点:}
+\noindent
+\textbf{
+1. 密钥长度短： DES的密钥长度只有56位，这在当前的计算能力下已经不够安全。使用较短的密钥长度容易受到穷举搜索等暴力攻击的威胁。\\
+2. 已被破解： 由于DES的密钥长度较短，使得它易受到巨大计算能力的现代计算机和专用硬件的攻击。DES已经被证明是不安全的，并且可以在相对较短的时间内被破解。\\
+3. 未来不可持续： 随着计算能力的不断增强和密码分析技术的不断发展，DES已经不再具有足够的安全性，因此不适合用于保护敏感数据或长期使用。\\
+}
+\subsubsection{DES算法的替代方案}
+\noindent 
+\textbf{
+安全性方面的考虑使得研究者在1980年代晚期和1990年代早期提出了一系列替代的块密码设计，包括RC5，Blowfish，IDEA，NewDES，SAFER，CAST5和FEAL。这些设计的大多数保持了DES的64位的块大小，可以作为DES的直接替代方案，虽然这些方案通常使用64位或128位的密钥。苏联导入了GOST 28147-89算法，该算法的块大小为64位，而密钥长度为256位，并在晚些时候的俄罗斯得到了应用。\\\\
+2000年代，DES逐渐被3DES替代。3DES相当于用两个（2TDES）或三个（3TDES）不同的密钥对数据进行三次DES加密。2010年代，3DES逐渐被更安全的高级加密标准（AES）替代。\\\\
+2000年10月，在历时接近5年的征集和选拔之后，NIST选择了高级加密标准（AES）替代DES和3DES。2001年2月28日，联邦公报发表了AES标准，以此开始了其标准化进程，并于2001年11月26日成为FIPS PUB 197标准。AES算法在提交的时候称为Rijndael。选拔中其它进入决赛的算法包括RC6，Serpent，MARS和Twofish。\\\\
+}
+\subsection{实验感悟}
+\textbf{
+通过本次课程项目,我学习了DES对称加密算法,了解了DES算法加解密的框架和过程,并用代码来实现DES算法。这不仅让我对该算法的对称密码体系结构:Feistel网络结构以及密钥调度等基本概念和原理更加熟悉,而且了解到了DES的安全性逐渐受到挑战。这提醒我们在设计和选择加密算法时，需要考虑到未来的发展和计算环境，以确保数据的安全性和机密性。\\
+}
+
+\textbf{
+因此，DES算法不仅在于它的历史地位和影响，更在于它对密码学发展的启示和警示，为我们理解和应用密码学提供了宝贵的经验和教训。
+}
+\end{document}
